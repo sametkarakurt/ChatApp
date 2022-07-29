@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -10,7 +10,18 @@ import {
 import { Button } from "react-native-paper";
 import Entypo from "react-native-vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
+import { signIn } from "../../config/firebase";
+import { Context } from "../../Context/Context";
 const Register = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const context = useContext(Context);
+  const login = async () => {
+    const res = await signIn(email, password, setIsLoading);
+    await context.authenticate(res);
+  };
+
   return (
     <View>
       <LinearGradient
@@ -21,18 +32,24 @@ const Register = ({ navigation }) => {
       <View style={styles.container}>
         <Text style={styles.signText}>Sign In</Text>
 
-        <TextInput style={styles.input} placeholder="Email" />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          onChangeText={(text) => setEmail(text)}
+        />
         <TextInput
           style={styles.input}
           placeholder="Password"
           secureTextEntry={true}
+          onChangeText={(text) => setPassword(text)}
         />
         <Button
           mode="contained"
           style={styles.button}
           contentStyle={styles.buttonContent}
           labelStyle={styles.buttonLabel}
-          onPress={() => console.log("Pressed")}
+          loading={isLoading}
+          onPress={() => login()}
         >
           Sign In
         </Button>

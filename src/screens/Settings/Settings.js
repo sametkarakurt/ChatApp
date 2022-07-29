@@ -1,10 +1,16 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-
+import React, { useState, useContext } from "react";
+import { StyleSheet, Text, Button, View } from "react-native";
+import { Context } from "../../Context/Context";
 const Settings = () => {
+  const context = useContext(Context);
   return (
     <View style={styles.container}>
-      <Text>Settings</Text>
+      <Button
+        title="Sign out"
+        onPress={() => {
+          context.logout();
+        }}
+      ></Button>
     </View>
   );
 };

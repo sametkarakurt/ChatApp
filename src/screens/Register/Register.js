@@ -10,7 +10,14 @@ import {
 import { Button } from "react-native-paper";
 import Entypo from "react-native-vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
+import { signUp } from "../../config/firebase";
+
 const Register = ({ navigation }) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   return (
     <View>
       <LinearGradient
@@ -32,19 +39,31 @@ const Register = ({ navigation }) => {
           />
         </TouchableOpacity>
         <Text style={styles.signText}>Sign Up</Text>
-        <TextInput style={styles.input} placeholder="Name" />
-        <TextInput style={styles.input} placeholder="Email" />
+        <TextInput
+          style={styles.input}
+          placeholder="Name"
+          onChangeText={(text) => setName(text)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          onChangeText={(text) => setEmail(text)}
+        />
         <TextInput
           style={styles.input}
           placeholder="Password"
           secureTextEntry={true}
+          onChangeText={(text) => setPassword(text)}
         />
         <Button
           mode="contained"
           style={styles.button}
           contentStyle={styles.buttonContent}
           labelStyle={styles.buttonLabel}
-          onPress={() => console.log("Pressed")}
+          onPress={() => {
+            signUp(name, email, password, setIsLoading);
+          }}
+          loading={isLoading}
         >
           Sign Up
         </Button>
