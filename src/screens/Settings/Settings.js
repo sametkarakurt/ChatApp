@@ -1,10 +1,14 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { StyleSheet, Text, Button, View } from "react-native";
 import { Context } from "../../Context/Context";
 const Settings = () => {
   const context = useContext(Context);
+  useEffect(() => {
+    console.log(context.user);
+  }, [context.user]);
   return (
     <View style={styles.container}>
+      <Text>{context.user._tokenResponse.email}</Text>
       <Button
         title="Sign out"
         onPress={() => {

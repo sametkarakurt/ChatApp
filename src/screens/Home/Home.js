@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   SafeAreaView,
+  ActivityIndicator,
   Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,18 +22,21 @@ import {
 } from "react-native-paper";
 import { Context } from "../../Context/Context";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { addChat, getChats, authState } from "../../config/firebase";
-const avatarImage = "/Users/sametkarakurt/ChatApp/assets/Reyna.png";
+import { addChat, getChats } from "../../config/firebase";
+
 const Home = ({ navigation }) => {
+  const pageTitle = "Messages";
+  const backColor = ["#E4DEE5", "#FED6E3"];
   const context = useContext(Context);
   const [showDialog, setShowDialog] = useState(false);
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [chats, setChats] = useState([]);
   const [currentEmail, setCurrentEmail] = useState("");
+  const [dataLoading, setDataLoading] = useState(false);
+
   const getData = async () => {
-    await getChats(context.user._tokenResponse.email, setChats);
-    console.log(chats);
+    await getChats(context.user._tokenResponse.email, setChats, setDataLoading);
   };
 
   useEffect(() => {
@@ -41,35 +45,46 @@ const Home = ({ navigation }) => {
 
   const renderListItem = ({ item }) => (
     <List.Item
-      title={item.users.find((x) => x !== context.user._tokenResponse.email)}
+      title={item.data.users.find(
+        (x) => x !== context.user._tokenResponse.email
+      )}
       titleStyle={styles.title}
-      description={(item.messages ?? [])[0]?.text ?? undefined}
+      description={(item.data.messages ?? [])[0]?.text ?? undefined}
       descriptionStyle={styles.description}
       left={() => (
         <Avatar.Text
           style={styles.avatar}
-          label={item.users
+          label={item.data.users
             .find((x) => x !== context.user._tokenResponse.email)
             .split(" ")
             .reduce((prev, current) => prev + current[0], "")}
         />
       )}
-      onPress={() => navigation.navigate("Chat")}
+      onPress={() => navigation.navigate("Chat", { chatId: item.id })}
     />
   );
+
+  const AddIcon = () => {
+    return (
+      <MaterialCommunityIcons
+        name="square-edit-outline"
+        style={{ color: "#3A2E61" }}
+        size={30}
+      />
+    );
+  };
 
   return (
     <View>
       <LinearGradient
         // Background Linear Gradient
-        colors={["#E4DEE5", "#FED6E3"]}
+        colors={backColor}
         style={styles.background}
       />
       <SafeAreaView>
         <View style={styles.container}>
           <View style={styles.head}>
-            <Text style={styles.pageTitle}>Messages</Text>
-
+            <Text style={styles.pageTitle}>{pageTitle}</Text>
             <Portal>
               <Dialog
                 onDismiss={() => setShowDialog(false)}
@@ -79,6 +94,7 @@ const Home = ({ navigation }) => {
                 <Dialog.Content>
                   <TextInput
                     label="Enter user email"
+                    autoCapitalize="none"
                     onChangeText={(text) => setEmail(text)}
                   />
                 </Dialog.Content>
@@ -91,13 +107,15 @@ const Home = ({ navigation }) => {
                     Cancel
                   </Button>
                   <Button
-                    onPress={() => {
+                    onPress={async () => {
                       setIsLoading(true);
-                      addChat(
+                      const res = await addChat(
                         [context.user._tokenResponse.email, email],
                         setIsLoading
                       );
                       setShowDialog(false);
+                      console.log(res);
+                      navigation.navigate("Chat", { chatId: res });
                     }}
                     loading={isLoading}
                   >
@@ -106,22 +124,23 @@ const Home = ({ navigation }) => {
                 </Dialog.Actions>
               </Dialog>
             </Portal>
+
             <TouchableOpacity
               style={styles.chatButton}
               onPress={() => {
                 setShowDialog(true);
               }}
             >
-              <MaterialCommunityIcons
-                name="square-edit-outline"
-                style={{ color: "#3A2E61" }}
-                size={30}
-              />
+              <AddIcon />
             </TouchableOpacity>
           </View>
           <BlurView intensity={105} style={styles.body}>
             <View style={styles.list}>
-              <FlatList data={chats} renderItem={renderListItem} />
+              {dataLoading ? (
+                <ActivityIndicator size={"large"} color="#0000ff" />
+              ) : (
+                <FlatList data={chats} renderItem={renderListItem} />
+              )}
             </View>
           </BlurView>
         </View>
@@ -141,7 +160,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     width: 63.05,
     height: 66,
-    backgroundColor: "#D8DE96",
+    backgroundColor: "#BDB0E7",
   },
   background: {
     position: "absolute",

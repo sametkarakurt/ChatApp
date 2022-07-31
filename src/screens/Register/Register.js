@@ -40,16 +40,19 @@ const Register = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.signText}>Sign Up</Text>
         <TextInput
+          autoCapitalize="none"
           style={styles.input}
           placeholder="Name"
           onChangeText={(text) => setName(text)}
         />
         <TextInput
+          autoCapitalize="none"
           style={styles.input}
           placeholder="Email"
           onChangeText={(text) => setEmail(text)}
         />
         <TextInput
+          autoCapitalize="none"
           style={styles.input}
           placeholder="Password"
           secureTextEntry={true}

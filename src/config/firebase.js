@@ -75,9 +75,10 @@ export const addChat = async (users, setIsLoading) => {
     users: users,
   });
   setIsLoading(false);
+  return key;
 };
 
-export const getChats = async (email, setChats) => {
+export const getChats = async (email, setChats, setDataLoading) => {
   const q = query(
     collection(db, "chats"),
     where("users", "array-contains", email)
@@ -87,7 +88,16 @@ export const getChats = async (email, setChats) => {
       await onSnapshot(q, (querySnapshot) => {
         setChats([]);
         querySnapshot.forEach((doc) => {
-          setChats((oldArray) => [...oldArray, doc.data()]);
+          console.log;
+          setChats((oldArray) => [
+            ...oldArray,
+            {
+              data: doc.data(),
+              id: doc._document.key.path.segments[
+                doc._document.key.path.segments.length - 1
+              ],
+            },
+          ]);
         });
       });
     } catch (error) {
@@ -103,4 +113,22 @@ export const authState = (setEmail) => {
       console.log(user.email);
     }
   });
+};
+
+export const getMessages = async (id, setMessages) => {
+  const res = await onSnapshot(doc(db, "chats", id), (doc) => {
+    setMessages(doc.data()?.messages ?? []);
+  });
+  console.log(res);
+  return res;
+};
+
+export const addMessage = async (id, message) => {
+  await setDoc(
+    doc(db, `chats/${id}`),
+    {
+      messages: message,
+    },
+    { merge: true }
+  );
 };

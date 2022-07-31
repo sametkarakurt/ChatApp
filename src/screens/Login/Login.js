@@ -13,7 +13,13 @@ import Entypo from "react-native-vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
 import { signIn } from "../../config/firebase";
 import { Context } from "../../Context/Context";
+import { render } from "react-dom";
 const Register = ({ navigation }) => {
+  const pageTitle = "Sign In";
+  const emailPlaceholder = "Email";
+  const passwordPlaceholder = "Password";
+  const registerMessage = "Don't have an account? ";
+  const registerButton = "Sign Up";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +27,21 @@ const Register = ({ navigation }) => {
   const login = async () => {
     const res = await signIn(email, password, setIsLoading);
     await context.authenticate(res);
+  };
+
+  const ConfirmButton = ({ type, title }) => {
+    return (
+      <Button
+        mode={type}
+        style={styles.button}
+        contentStyle={styles.buttonContent}
+        labelStyle={styles.buttonLabel}
+        loading={isLoading}
+        onPress={() => login()}
+      >
+        {title}
+      </Button>
+    );
   };
 
   return (
@@ -31,37 +52,30 @@ const Register = ({ navigation }) => {
         style={styles.background}
       />
       <View style={styles.container}>
-        <Text style={styles.signText}>Sign In</Text>
-
+        <Text style={styles.signText}>{pageTitle}</Text>
         <TextInput
+          autoCapitalize="none"
           style={styles.input}
           placeholder="Email"
           onChangeText={(text) => setEmail(text)}
         />
         <TextInput
+          autoCapitalize="none"
           style={styles.input}
           placeholder="Password"
           secureTextEntry={true}
           onChangeText={(text) => setPassword(text)}
         />
-        <Button
-          mode="contained"
-          style={styles.button}
-          contentStyle={styles.buttonContent}
-          labelStyle={styles.buttonLabel}
-          loading={isLoading}
-          onPress={() => login()}
-        >
-          Sign In
-        </Button>
+
+        <ConfirmButton type={"contained"} title={"Sign In"} />
         <TouchableOpacity
           style={styles.register}
           onPress={() => {
             navigation.navigate("Register");
           }}
         >
-          <Text style={styles.registerText}>Don’t have an account? </Text>
-          <Text style={styles.registerText2}>Sign up</Text>
+          <Text style={styles.registerText}>{registerMessage}</Text>
+          <Text style={styles.registerText2}>{registerButton}</Text>
         </TouchableOpacity>
       </View>
     </View>
