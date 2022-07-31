@@ -1,3 +1,4 @@
+import React, { useContext } from "react";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -6,6 +7,17 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
+import "react-native-get-random-values";
+import { v4 as uuid } from "uuid";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  query,
+  where,
+  onSnapshot,
+  collection,
+} from "firebase/firestore";
 const firebaseConfig = {
   apiKey: "AIzaSyBBV79_YNaFCspGudCKxkkOYMM3Kaib5Iw",
   authDomain: "chatapp-63e5c.firebaseapp.com",
@@ -15,10 +27,13 @@ const firebaseConfig = {
   appId: "1:140079862429:web:90d80c55cee2e2bc48ba74",
   measurementId: "G-8ZJERRTXLS",
 };
+
 import { useNavigation } from "@react-navigation/native";
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
+
 export const signUp = async (name, email, password, setIsLoading) => {
   try {
     setIsLoading(true);
@@ -49,6 +64,43 @@ export const isSigned = () => {
   onAuthStateChanged(auth, (user) => {
     if (user) {
       navigation.navigate("Welcome");
+    }
+  });
+};
+
+export const addChat = async (users, setIsLoading) => {
+  const key = uuid();
+
+  await setDoc(doc(db, "chats", key), {
+    users: users,
+  });
+  setIsLoading(false);
+};
+
+export const getChats = async (email, setChats) => {
+  const q = query(
+    collection(db, "chats"),
+    where("users", "array-contains", email)
+  );
+  if (email) {
+    try {
+      await onSnapshot(q, (querySnapshot) => {
+        setChats([]);
+        querySnapshot.forEach((doc) => {
+          setChats((oldArray) => [...oldArray, doc.data()]);
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
+
+export const authState = (setEmail) => {
+  onAuthStateChanged(auth, function (user) {
+    if (user) {
+      setEmail(user.email);
+      console.log(user.email);
     }
   });
 };

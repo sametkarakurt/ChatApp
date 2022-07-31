@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
+  FlatList,
   SafeAreaView,
   Image,
 } from "react-native";
@@ -18,11 +19,45 @@ import {
   TextInput,
   Button,
 } from "react-native-paper";
+import { Context } from "../../Context/Context";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-
+import { addChat, getChats, authState } from "../../config/firebase";
 const avatarImage = "/Users/sametkarakurt/ChatApp/assets/Reyna.png";
-const Home = () => {
+const Home = ({ navigation }) => {
+  const context = useContext(Context);
   const [showDialog, setShowDialog] = useState(false);
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [chats, setChats] = useState([]);
+  const [currentEmail, setCurrentEmail] = useState("");
+  const getData = async () => {
+    await getChats(context.user._tokenResponse.email, setChats);
+    console.log(chats);
+  };
+
+  useEffect(() => {
+    getData();
+  }, [context.user]);
+
+  const renderListItem = ({ item }) => (
+    <List.Item
+      title={item.users.find((x) => x !== context.user._tokenResponse.email)}
+      titleStyle={styles.title}
+      description={(item.messages ?? [])[0]?.text ?? undefined}
+      descriptionStyle={styles.description}
+      left={() => (
+        <Avatar.Text
+          style={styles.avatar}
+          label={item.users
+            .find((x) => x !== context.user._tokenResponse.email)
+            .split(" ")
+            .reduce((prev, current) => prev + current[0], "")}
+        />
+      )}
+      onPress={() => navigation.navigate("Chat")}
+    />
+  );
+
   return (
     <View>
       <LinearGradient
@@ -34,6 +69,7 @@ const Home = () => {
         <View style={styles.container}>
           <View style={styles.head}>
             <Text style={styles.pageTitle}>Messages</Text>
+
             <Portal>
               <Dialog
                 onDismiss={() => setShowDialog(false)}
@@ -41,7 +77,10 @@ const Home = () => {
               >
                 <Dialog.Title>New Chat</Dialog.Title>
                 <Dialog.Content>
-                  <TextInput label="Enter user email" />
+                  <TextInput
+                    label="Enter user email"
+                    onChangeText={(text) => setEmail(text)}
+                  />
                 </Dialog.Content>
                 <Dialog.Actions>
                   <Button
@@ -53,8 +92,14 @@ const Home = () => {
                   </Button>
                   <Button
                     onPress={() => {
+                      setIsLoading(true);
+                      addChat(
+                        [context.user._tokenResponse.email, email],
+                        setIsLoading
+                      );
                       setShowDialog(false);
                     }}
+                    loading={isLoading}
                   >
                     Save
                   </Button>
@@ -76,18 +121,7 @@ const Home = () => {
           </View>
           <BlurView intensity={105} style={styles.body}>
             <View style={styles.list}>
-              <List.Item
-                title="User Name"
-                titleStyle={styles.title}
-                description="Hi,I will be waiting for you?"
-                descriptionStyle={styles.description}
-                left={() => (
-                  <Image style={styles.avatar} source={require(avatarImage)} />
-                )}
-              />
-              <Divider />
-
-              <Divider />
+              <FlatList data={chats} renderItem={renderListItem} />
             </View>
           </BlurView>
         </View>

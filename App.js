@@ -11,6 +11,7 @@ import Home from "./src/screens/Home/Home";
 import ContextProvider from "./src/Context/Context";
 import { Context } from "./src/Context/Context";
 import { Provider } from "react-native-paper";
+import Chat from "./src/screens/Chat/Chat";
 const Stack = createNativeStackNavigator();
 const App = () => {
   useEffect(() => {}, []);
@@ -60,6 +61,7 @@ const App = () => {
           options={{ headerShown: false }}
           component={Home}
         />
+        <Stack.Screen name="Chat" component={Chat} />
       </Stack.Navigator>
     );
   };
