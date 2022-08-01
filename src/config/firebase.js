@@ -1,8 +1,10 @@
 import React, { useContext } from "react";
+import { Alert } from "react-native";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
   updateProfile,
+  updateEmail,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
@@ -18,15 +20,9 @@ import {
   onSnapshot,
   collection,
 } from "firebase/firestore";
-const firebaseConfig = {
-  apiKey: "AIzaSyBBV79_YNaFCspGudCKxkkOYMM3Kaib5Iw",
-  authDomain: "chatapp-63e5c.firebaseapp.com",
-  projectId: "chatapp-63e5c",
-  storageBucket: "chatapp-63e5c.appspot.com",
-  messagingSenderId: "140079862429",
-  appId: "1:140079862429:web:90d80c55cee2e2bc48ba74",
-  measurementId: "G-8ZJERRTXLS",
-};
+
+//Add firebase config
+//const firebaseConfig = {};
 
 import { useNavigation } from "@react-navigation/native";
 // Initialize Firebase
@@ -39,7 +35,7 @@ export const signUp = async (name, email, password, setIsLoading) => {
     setIsLoading(true);
     await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(auth.currentUser, { displayName: name });
-    alert("Successfully signed up");
+    Alert.alert("Success", "Successfully signed up");
     setIsLoading(false);
   } catch (error) {
     setIsLoading(false);
@@ -50,8 +46,10 @@ export const signUp = async (name, email, password, setIsLoading) => {
 export const signIn = async (email, password, setIsLoading) => {
   try {
     setIsLoading(true);
-    const res = await signInWithEmailAndPassword(auth, email, password);
+    await signInWithEmailAndPassword(auth, email, password);
     setIsLoading(false);
+    const res = await authState();
+    console.log(res);
     return res;
   } catch (error) {
     alert(error);
@@ -79,6 +77,7 @@ export const addChat = async (users, setIsLoading) => {
 };
 
 export const getChats = async (email, setChats, setDataLoading) => {
+  setDataLoading(true);
   const q = query(
     collection(db, "chats"),
     where("users", "array-contains", email)
@@ -88,7 +87,6 @@ export const getChats = async (email, setChats, setDataLoading) => {
       await onSnapshot(q, (querySnapshot) => {
         setChats([]);
         querySnapshot.forEach((doc) => {
-          console.log;
           setChats((oldArray) => [
             ...oldArray,
             {
@@ -100,19 +98,21 @@ export const getChats = async (email, setChats, setDataLoading) => {
           ]);
         });
       });
+      setDataLoading(false);
     } catch (error) {
       console.log(error);
     }
   }
 };
 
-export const authState = (setEmail) => {
-  onAuthStateChanged(auth, function (user) {
+export const authState = async () => {
+  var res = "";
+  await onAuthStateChanged(auth, function (user) {
     if (user) {
-      setEmail(user.email);
-      console.log(user.email);
+      res = user;
     }
   });
+  return res;
 };
 
 export const getMessages = async (id, setMessages) => {
@@ -124,11 +124,33 @@ export const getMessages = async (id, setMessages) => {
 };
 
 export const addMessage = async (id, message) => {
-  await setDoc(
-    doc(db, `chats/${id}`),
-    {
-      messages: message,
-    },
-    { merge: true }
-  );
+  try {
+    await setDoc(
+      doc(db, `chats/${id}`),
+      {
+        messages: message,
+      },
+      { merge: true }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateUser = async (name, email) => {
+  try {
+    if (name !== "" && email !== "") {
+      await updateProfile(auth.currentUser, { displayName: name });
+      await updateEmail(auth.currentUser, email)
+        .then(() => {
+          authState();
+          Alert.alert("Success", "Changes saved");
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };

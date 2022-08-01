@@ -12,11 +12,25 @@ import Entypo from "react-native-vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
 import { signUp } from "../../config/firebase";
 
+const RegisterTextInput = (props) => {
+  return (
+    <TextInput
+      autoCapitalize="none"
+      style={styles.input}
+      placeholder={props.placeholder}
+      onChangeText={(text) => props.setState(text)}
+    />
+  );
+};
+
 const Register = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const namePlaceholder = "Name";
+  const emailPlaceholder = "Email";
+  const passwordPlaceholder = "Password";
 
   return (
     <View>
@@ -26,38 +40,24 @@ const Register = ({ navigation }) => {
         style={styles.background}
       />
       <View style={styles.container}>
+        <View style={{ flex: 2 }} />
         <TouchableOpacity
           onPress={() => {
             navigation.goBack();
           }}
         >
-          <Entypo
-            name="chevron-left"
-            color={"#4F93F9"}
-            size={48}
-            style={{ marginTop: 90 }}
-          />
+          <Entypo name="chevron-left" color={"#4F93F9"} size={48} />
         </TouchableOpacity>
+        <View style={{ flex: 1 }} />
         <Text style={styles.signText}>Sign Up</Text>
-        <TextInput
-          autoCapitalize="none"
-          style={styles.input}
-          placeholder="Name"
-          onChangeText={(text) => setName(text)}
+        <RegisterTextInput placeholder={namePlaceholder} setState={setName} />
+        <RegisterTextInput placeholder={emailPlaceholder} setState={setEmail} />
+        <RegisterTextInput
+          placeholder={passwordPlaceholder}
+          setState={setPassword}
         />
-        <TextInput
-          autoCapitalize="none"
-          style={styles.input}
-          placeholder="Email"
-          onChangeText={(text) => setEmail(text)}
-        />
-        <TextInput
-          autoCapitalize="none"
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry={true}
-          onChangeText={(text) => setPassword(text)}
-        />
+
+        <View style={{ flex: 1 }} />
         <Button
           mode="contained"
           style={styles.button}
@@ -68,8 +68,9 @@ const Register = ({ navigation }) => {
           }}
           loading={isLoading}
         >
-          Sign Up
+          SIGN UP
         </Button>
+        <View style={{ flex: 4 }} />
       </View>
     </View>
   );
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
   },
   signText: {
     height: 31,
-    marginTop: 80,
+
     color: "#3A2E61",
     fontSize: 26,
     lineHeight: 31,
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(105, 85, 170, 0.99)",
     borderRadius: 15,
     height: 60,
-    marginTop: 80,
+
     justifyContent: "center",
   },
   buttonContent: {

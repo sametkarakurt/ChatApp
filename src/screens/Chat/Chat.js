@@ -6,17 +6,18 @@ import { GiftedChat } from "react-native-gifted-chat";
 const Chat = ({ route }) => {
   const [messages, setMessages] = useState([]);
   const context = useContext(Context);
-
   const [uid, setUID] = useState();
   const [name, setName] = useState();
+
   const getData = async () => {
     const res = await getMessages(route.params.chatId, setMessages);
-    setUID(context.user.user.uid);
-    setName(context.user._tokenResponse.displayName);
-    console.log(route.params.chatId);
+    setUID(context.user.uid);
+    setName(context.user.displayName);
     addMessage(route.params.chatId);
   };
+  
   useEffect(() => {
+    setMessages([]);
     getData();
   }, [route.params.chatId]);
 

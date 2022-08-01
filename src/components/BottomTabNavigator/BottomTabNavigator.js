@@ -8,12 +8,14 @@ function BottomTabNavigator() {
   const Tab = createBottomTabNavigator();
   return (
     <Tab.Navigator
-      tabBarOptions={{
-        showLabel: false,
-      }}
       screenOptions={{
+        tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#D7D2E0",
+          backgroundColor: "#D0E3E7",
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          position: "absolute",
+          bottom: 0,
           height: 92,
         },
       }}

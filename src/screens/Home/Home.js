@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Image,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
@@ -22,10 +23,12 @@ import {
 } from "react-native-paper";
 import { Context } from "../../Context/Context";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { addChat, getChats } from "../../config/firebase";
+import { addChat, getChats, authState } from "../../config/firebase";
+import { PortalComponent } from "../../components/PortalComponent/PortalComponet";
 
 const Home = ({ navigation }) => {
   const pageTitle = "Messages";
+  const indicatorColor = "#3A2E61";
   const backColor = ["#E4DEE5", "#FED6E3"];
   const context = useContext(Context);
   const [showDialog, setShowDialog] = useState(false);
@@ -33,10 +36,11 @@ const Home = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [chats, setChats] = useState([]);
   const [currentEmail, setCurrentEmail] = useState("");
-  const [dataLoading, setDataLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
 
   const getData = async () => {
-    await getChats(context.user._tokenResponse.email, setChats, setDataLoading);
+    console.log(context.user);
+    await getChats(context.user.email, setChats, setDataLoading);
   };
 
   useEffect(() => {
@@ -45,9 +49,7 @@ const Home = ({ navigation }) => {
 
   const renderListItem = ({ item }) => (
     <List.Item
-      title={item.data.users.find(
-        (x) => x !== context.user._tokenResponse.email
-      )}
+      title={item.data.users.find((x) => x !== context.user.email)}
       titleStyle={styles.title}
       description={(item.data.messages ?? [])[0]?.text ?? undefined}
       descriptionStyle={styles.description}
@@ -55,7 +57,7 @@ const Home = ({ navigation }) => {
         <Avatar.Text
           style={styles.avatar}
           label={item.data.users
-            .find((x) => x !== context.user._tokenResponse.email)
+            .find((x) => x !== context.user.email)
             .split(" ")
             .reduce((prev, current) => prev + current[0], "")}
         />
@@ -76,55 +78,19 @@ const Home = ({ navigation }) => {
 
   return (
     <View>
-      <LinearGradient
-        // Background Linear Gradient
-        colors={backColor}
-        style={styles.background}
-      />
+      <LinearGradient colors={backColor} style={styles.background} />
       <SafeAreaView>
         <View style={styles.container}>
           <View style={styles.head}>
             <Text style={styles.pageTitle}>{pageTitle}</Text>
-            <Portal>
-              <Dialog
-                onDismiss={() => setShowDialog(false)}
-                visible={showDialog}
-              >
-                <Dialog.Title>New Chat</Dialog.Title>
-                <Dialog.Content>
-                  <TextInput
-                    label="Enter user email"
-                    autoCapitalize="none"
-                    onChangeText={(text) => setEmail(text)}
-                  />
-                </Dialog.Content>
-                <Dialog.Actions>
-                  <Button
-                    onPress={() => {
-                      setShowDialog(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onPress={async () => {
-                      setIsLoading(true);
-                      const res = await addChat(
-                        [context.user._tokenResponse.email, email],
-                        setIsLoading
-                      );
-                      setShowDialog(false);
-                      console.log(res);
-                      navigation.navigate("Chat", { chatId: res });
-                    }}
-                    loading={isLoading}
-                  >
-                    Save
-                  </Button>
-                </Dialog.Actions>
-              </Dialog>
-            </Portal>
-
+            <PortalComponent
+              showDialog={showDialog}
+              setEmail={setEmail}
+              setShowDialog={setShowDialog}
+              setIsLoading={setIsLoading}
+              isLoading={isLoading}
+              email={email}
+            />
             <TouchableOpacity
               style={styles.chatButton}
               onPress={() => {
@@ -137,7 +103,7 @@ const Home = ({ navigation }) => {
           <BlurView intensity={105} style={styles.body}>
             <View style={styles.list}>
               {dataLoading ? (
-                <ActivityIndicator size={"large"} color="#0000ff" />
+                <ActivityIndicator size={"large"} color={indicatorColor} />
               ) : (
                 <FlatList data={chats} renderItem={renderListItem} />
               )}
@@ -172,7 +138,7 @@ const styles = StyleSheet.create({
   head: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 60,
+    marginTop: Platform.OS === "ios" ? "10%" : "20%",
   },
   body: {
     marginTop: 40,

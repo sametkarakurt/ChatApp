@@ -12,6 +12,10 @@ import ContextProvider from "./src/Context/Context";
 import { Context } from "./src/Context/Context";
 import { Provider } from "react-native-paper";
 import Chat from "./src/screens/Chat/Chat";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs([
+  "Can't perform a React state update on an unmounted component.",
+]);
 const Stack = createNativeStackNavigator();
 const App = () => {
   useEffect(() => {}, []);

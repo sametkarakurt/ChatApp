@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { SafeAreaView } from "react-native";
 import {
   StyleSheet,
   Image,
@@ -8,10 +9,13 @@ import {
   ImageBackground,
 } from "react-native";
 const backgroundImage = {
-  uri: "/Users/sametkarakurt/ChatApp/assets/moon.png",
+  uri: "https://i.ibb.co/8zKr57s/moon.png",
 };
-const logoImage = "/Users/sametkarakurt/ChatApp/assets/group.png";
+const logoImage = { uri: "https://i.ibb.co/S6CBVv3/group.png" };
 const Welcome = ({ navigation }) => {
+  const pageTitle = "Hello, Lets Chat";
+  const pageMessage = "What are you doing today? Everything is ok?";
+  const signButton = "Sign in";
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -19,17 +23,18 @@ const Welcome = ({ navigation }) => {
         resizeMode="cover"
         style={styles.image}
       >
-        <Image style={styles.logo} source={require(logoImage)} />
-        <Text style={styles.helloMessage}>Hello, Lets Chat</Text>
-        <Text style={styles.contentMessage}>
-          What are you doing today? Everything is ok?
-        </Text>
+        <View style={{ flex: 0.1 }}></View>
+        <Image style={styles.logo} source={logoImage} />
+
+        <Text style={styles.helloMessage}>{pageTitle}</Text>
+        <Text style={styles.contentMessage}>{pageMessage}</Text>
         <TouchableOpacity
+          style={styles.signButton}
           onPress={() => {
             navigation.navigate("Login");
           }}
         >
-          <Text style={styles.signIn}>Sign in</Text>
+          <Text style={styles.signIn}>{signButton}</Text>
         </TouchableOpacity>
       </ImageBackground>
     </View>
@@ -41,6 +46,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logo: {
+    flex: 0.6,
     width: "90%",
     resizeMode: "contain",
   },
@@ -59,6 +65,7 @@ const styles = StyleSheet.create({
     color: "#3A2E61",
   },
   contentMessage: {
+    flex: 0.2,
     width: 241,
     height: 55,
     textAlign: "center",
@@ -66,14 +73,15 @@ const styles = StyleSheet.create({
     fontWeight: "normal",
     color: "#3A2E61",
     fontSize: 18,
-    marginTop: 6,
-    marginBottom: 64,
   },
   signIn: {
     fontWeight: "bold",
     fontSize: 20,
     lineHeight: 24,
     color: "#6B56AB",
+  },
+  signButton: {
+    flex: 0.05,
   },
 });
 

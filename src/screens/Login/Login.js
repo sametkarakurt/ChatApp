@@ -13,11 +13,29 @@ import Entypo from "react-native-vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
 import { signIn } from "../../config/firebase";
 import { Context } from "../../Context/Context";
-import { render } from "react-dom";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs([
+  "AsyncStorage has been extracted from react-native core and will be removed in a future release.",
+]);
+
+const LoginTextInput = (props) => {
+  return (
+    <TextInput
+      autoCapitalize="none"
+      style={styles.input}
+      placeholder={props.placeholder}
+      onChangeText={(text) => props.setState(text)}
+      secureTextEntry={props.security}
+    />
+  );
+};
 const Register = ({ navigation }) => {
   const pageTitle = "Sign In";
   const emailPlaceholder = "Email";
   const passwordPlaceholder = "Password";
+  const bgColors = ["#A8C2ED", "#FED6E3"];
+  const confirmButtonTitle = "SIGN IN";
   const registerMessage = "Don't have an account? ";
   const registerButton = "Sign Up";
   const [email, setEmail] = useState("");
@@ -26,7 +44,7 @@ const Register = ({ navigation }) => {
   const context = useContext(Context);
   const login = async () => {
     const res = await signIn(email, password, setIsLoading);
-    await context.authenticate(res);
+    context.authenticate(res);
   };
 
   const ConfirmButton = ({ type, title }) => {
@@ -48,26 +66,25 @@ const Register = ({ navigation }) => {
     <View>
       <LinearGradient
         // Background Linear Gradient
-        colors={["#A8C2ED", "#FED6E3"]}
+        colors={bgColors}
         style={styles.background}
       />
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <View style={{ flex: 3 }} />
         <Text style={styles.signText}>{pageTitle}</Text>
-        <TextInput
-          autoCapitalize="none"
-          style={styles.input}
-          placeholder="Email"
-          onChangeText={(text) => setEmail(text)}
+        <LoginTextInput
+          setState={setEmail}
+          placeholder={emailPlaceholder}
+          security={false}
         />
-        <TextInput
-          autoCapitalize="none"
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry={true}
-          onChangeText={(text) => setPassword(text)}
+        <LoginTextInput
+          setState={setPassword}
+          placeholder={passwordPlaceholder}
+          security={true}
         />
-
-        <ConfirmButton type={"contained"} title={"Sign In"} />
+        <View style={{ flex: 1 }} />
+        <ConfirmButton type={"contained"} title={confirmButtonTitle} />
+        <View style={{ flex: 3 }} />
         <TouchableOpacity
           style={styles.register}
           onPress={() => {
@@ -77,17 +94,17 @@ const Register = ({ navigation }) => {
           <Text style={styles.registerText}>{registerMessage}</Text>
           <Text style={styles.registerText2}>{registerButton}</Text>
         </TouchableOpacity>
-      </View>
+      </SafeAreaView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   register: {
-    marginTop: 250,
     justifyContent: "center",
     width: "100%",
     flexDirection: "row",
+    marginBottom: 20,
   },
   registerText: {
     height: 24,
@@ -122,7 +139,6 @@ const styles = StyleSheet.create({
   },
   signText: {
     height: 31,
-    marginTop: 200,
     color: "#3A2E61",
     fontSize: 26,
     lineHeight: 31,
@@ -140,7 +156,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(105, 85, 170, 0.99)",
     borderRadius: 15,
     height: 60,
-    marginTop: 80,
     justifyContent: "center",
   },
   buttonContent: {
