@@ -27,22 +27,24 @@ const Settings = () => {
   }, [context.user]);
 
   const SettingsTextInput = (props) => {
-    <TextInput
-      autoCapitalize="none"
-      value={props.value}
-      style={styles.input}
-      mode="outlined"
-      label={props.label}
-      onChangeText={(text) => props.setState(text)}
-      right={
-        <TextInput.Icon
-          name="close"
-          onPress={() => {
-            props.setState("");
-          }}
-        />
-      }
-    />;
+    return (
+      <TextInput
+        autoCapitalize="none"
+        value={props.value}
+        style={styles.input}
+        mode="outlined"
+        label={props.label}
+        onChangeText={(text) => props.setState(text)}
+        right={
+          <TextInput.Icon
+            name="close"
+            onPress={() => {
+              props.setState("");
+            }}
+          />
+        }
+      />
+    );
   };
 
   return (

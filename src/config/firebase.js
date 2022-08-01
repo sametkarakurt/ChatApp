@@ -20,9 +20,15 @@ import {
   onSnapshot,
   collection,
 } from "firebase/firestore";
-
-//Add firebase config
-//const firebaseConfig = {};
+const firebaseConfig = {
+  apiKey: "AIzaSyDDfK_i2qXNuWI-3Tbr0XlJLnQwHlwvnW8",
+  authDomain: "chat-1c1da.firebaseapp.com",
+  projectId: "chat-1c1da",
+  storageBucket: "chat-1c1da.appspot.com",
+  messagingSenderId: "393992183286",
+  appId: "1:393992183286:web:72576b6fc4ec3ce7387bd7",
+  measurementId: "G-3HTTQGX3FN",
+};
 
 import { useNavigation } from "@react-navigation/native";
 // Initialize Firebase
